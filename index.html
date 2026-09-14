@@ -1,8 +1,10 @@
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruleta Pro DBD con Centro Dinámico</title>
+    <title>Ruleta Pro DBD - Grande y Fluida</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
@@ -23,7 +25,7 @@
             text-transform: uppercase; 
             letter-spacing: 3px; 
             margin-bottom: 10px; 
-            font-size: 2rem; 
+            font-size: 2.4rem; 
             text-shadow: 0 0 10px rgba(217, 30, 24, 0.5); 
             text-align: center;
         }
@@ -39,13 +41,13 @@
             background: #1f1f1f; 
             color: #888; 
             border: 2px solid #444;
-            padding: 8px 20px; 
+            padding: 10px 24px; 
             cursor: pointer; 
             border-radius: 6px;
             text-transform: uppercase; 
             font-weight: bold; 
             transition: all 0.3s;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
         .btn-rol.active { 
             background: #d91e18; 
@@ -54,48 +56,54 @@
             box-shadow: 0 0 15px rgba(217, 30, 24, 0.6); 
         }
 
+        /* Contenedor más grande */
         .ruleta-box {
             position: relative;
-            width: 740px;
-            height: 740px;
+            width: 780px;
+            height: 780px;
             display: flex;
             justify-content: center;
             align-items: center;
-            filter: drop-shadow(0 0 25px rgba(0,0,0,0.9));
+            filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
         }
 
+        /* Canvas ampliado visualmente a 760px */
         canvas {
+            width: 760px;
+            height: 760px;
             border-radius: 50%;
             border: 12px solid #1a1a1a;
             background: #111;
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .indicador {
             position: absolute;
-            top: -22px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%);
             width: 0; 
             height: 0; 
-            border-left: 22px solid transparent;
-            border-right: 22px solid transparent;
-            border-top: 38px solid #f1c40f;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 35px solid #f1c40f;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8));
             z-index: 10;
         }
 
         .centro-ganador {
             position: absolute;
-            width: 220px;
-            height: 220px;
-            background: rgba(10, 10, 10, 0.92);
+            width: 200px;
+            height: 200px;
+            background: rgba(15, 15, 15, 0.98);
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border: 4px solid #d91e18;
-            box-shadow: 0 0 25px rgba(217, 30, 24, 0.7);
+            box-shadow: 0 0 25px rgba(217, 30, 24, 0.8);
             z-index: 8;
             opacity: 0;
             transform: scale(0.5);
@@ -111,24 +119,27 @@
         }
 
         .centro-ganador img {
-            width: 75px;
-            height: 75px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
-            margin-top: 8px;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+            margin-top: 6px;
+            filter: drop-shadow(0 0 6px rgba(241, 196, 15, 0.6));
+            border-radius: 6px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px;
+            border: 1px solid #444;
         }
 
         .centro-ganador .texto-perk {
-            font-size: 0.85rem;
-            font-weight: 900;
+            font-size: 0.9rem;
+            font-weight: 700;
             color: #fff;
-            text-transform: uppercase;
             text-shadow: 0 2px 4px rgba(0,0,0,0.9);
             line-height: 1.1;
         }
 
         #btnGirar {
-            margin-top: 20px;
+            margin-top: 25px;
             background: linear-gradient(135deg, #d91e18 0%, #610b08 100%);
             color: white; 
             border: none; 
@@ -148,7 +159,7 @@
         #btnGirar:disabled { background: #444; cursor: not-allowed; box-shadow: none; color: #777;}
 
         #resultado {
-            margin-top: 12px;
+            margin-top: 15px;
             font-size: 1.3rem;
             font-weight: bold;
             color: #f1c40f;
@@ -169,7 +180,8 @@
 
     <div class="ruleta-box">
         <div class="indicador"></div>
-        <canvas id="canvasRuleta" width="720" height="720"></canvas>
+        <!-- Resolución interna balanceada a 1000x1000 para mantener 60 FPS estables -->
+        <canvas id="canvasRuleta" width="1000" height="1000"></canvas>
         
         <div id="centroGanador" class="centro-ganador">
             <div id="nombreGanadorCentro" class="texto-perk"></div>
@@ -181,68 +193,221 @@
     <div id="resultado">¡Gira para escoger tu habilidad!</div>
 
     <script>
-        const perksSuperviviente = [
-            "Adrenalina", "Alerta", "Autocura", "Autodidacta", "Balancín", "Bienvenida a las máquinas", 
-            "Borrón y cuenta nueva", "Bravuconería", "Buscapleitos", "Camaradería", "Camuflaje", 
-            "Capacidad de adaptación", "Carrera explosiva", "Cédula de identidad", "Cercanía familiar", 
-            "Cerrojazo", "Chivo expiatorio", "Clarividencia", "Compañerismo", "Conocimiento botánico", 
-            "Contraproducente", "Corrido a toda velocidad", "Danza con las sombras", "Derecho a la pereza", 
-            "Desesperación", "Determinación", "Distorción", "Duro de matar", "Evasión urbana", 
-            "Exhibición", "Firmeza", "Golpe decisivo", "Golpe fuerte", "Guardián", "Hacerse el muerto", 
-            "Improvisación", "Inquebrantable", "Instinto de supervivencia", "Líder", "Llamativo", 
-            "Mente abierta", "Mente despierta", "Mente en blanco", "Mente preclara", "Moneda de cambio", 
-            "Motivación", "Muestreo", "Neurología", "No estás solo", "Optimista", "Oportunidades", 
-            "Pánico controlado", "Paranoia", "Paso ligero", "Pie ligero", "Por el equipo", 
-            "Presagio", "Propósito oculto", "Protección", "Reacción en cadena", "Reacción rápida", 
-            "Rebote", "Recompensa", "Resiliencia", "Resistencia", "Revisión de guardia", "Robo de identidad", 
-            "Rompehielos", "Salto de fe", "Salvavidas", "Sangre fría", "Secreto desvelado", "Sensación térmica", 
-            "Sexto sentido", "Soberanía", "Solución rápida", "Suerte de principiante", "Tenacidad", 
-            "Teoría del caos", "Tiempo prestado", "Trato cerrado", "Trabajo en equipo", "Tumbar la casa", 
-            "Vínculo", "Visión periférica", "Visión tunelada", "Visionaria", "¡A por todas!"
-        ];
+        const basePerksSuperviviente = {
+            "Demuestras lo que vales": "https://i.ibb.co/s9TqQXfJ/Icon-Perks-prove-Thyself.webp",
+            "Vínculo": "https://i.ibb.co/SXYxRdgM/Icon-Perks-bond-1.webp",   
+            "Líder": "https://i.ibb.co/KjjbTsyV/Icon-Perks-leader.webp",
+            "Adrenalina": "https://i.ibb.co/Pv2rd3XT/Icon-Perks-adrenaline.webp",
+            "Velocidad silenciosa": "https://i.ibb.co/W4sq7XnW/Icon-Perks-quick-And-Quiet.webp",
+            "Esprint": "https://i.ibb.co/99Gq8LHF/Icon-Perks-sprint-Burst.webp",
+            "Conocimientos de botánica": "https://i.ibb.co/NgjQZcpR/Icon-Perks-botany-Knowledge.webp",
+            "Empatía": "https://i.ibb.co/8LYWDwjr/Icon-Perks-empathy.webp",
+            "Autocuración": "https://i.ibb.co/0jDvtTb1/Icon-Perks-self-Care.webp",
+            "Espíritu Calmado": "https://i.ibb.co/FLzBhKyv/Icon-Perks-calm-Spirit.webp",
+            "Voluntad de hierro": "https://i.ibb.co/WWzgy29f/Icon-Perks-iron-Will.webp",
+            "Saboteador": "https://i.ibb.co/C3WXnRsM/Icon-Perks-saboteur.webp",
+            "Aterrizaje equilibrado": "https://i.ibb.co/Fb4fJ7JH/Icon-Perks-balanced-Landing.webp",
+            "Evasión urbana": "https://i.ibb.co/4RW4BxdG/Icon-Perks-urban-Evasion.webp",
+            "De la calle": "https://i.ibb.co/6cwg131F/Icon-Perks-streetwise.webp",
+            "Tiempo prestado": "https://i.ibb.co/dsQPLn7Q/Icon-Perks-borrowed-Time.webp",
+            "Abandonado a tu suerte": "https://i.ibb.co/k2Qrtfjy/Icon-Perks-left-Behind.webp",
+            "Inquebrantable": "https://i.ibb.co/xSxZRGJH/Icon-Perks-unbreakable.webp",
+            "Solo quedo yo": "https://i.ibb.co/BHn6c2xm/Icon-Perks-sole-Survivor.webp",
+            "Golpe decisivo": "https://i.ibb.co/KpSJ7nBf/Icon-Perks-decisive-Strike.webp",
+            "Objeto de obsesion": "https://i.ibb.co/hR1SLsZ3/Icon-Perks-object-Of-Obsession.webp",
+            "As en la manga": "https://i.ibb.co/PswjByxv/Icon-Perks-ace-In-The-Hole.webp",
+            "A mano descubierta": "https://i.ibb.co/pvMBZq4w/Icon-Perks-open-Handed.webp",
+            "Subir las apuestas": "https://i.ibb.co/G3dy4k2p/Icon-Perks-up-The-Ante.webp",
+            "Pericia Tecnica": "https://i.ibb.co/fVxDyXHn/Icon-Perks-technician.webp",
+            "Agilidad": "https://i.ibb.co/XZWsCrXs/Icon-Perks-lithe.webp",
+            "Alerta": "https://i.ibb.co/ynWqRDSg/Icon-Perks-alert.webp",
+            "Fajador": "https://i.ibb.co/MDHvThDf/Icon-Perks-dead-Hard-1.webp",
+            "Me la pela": "https://i.ibb.co/9FvkNcK/Icon-Perks-no-Mither.webp",
+            "Vamos a vivir para simpre": "https://i.ibb.co/5Xdr81NB/Icon-Perks-were-Gonna-Live-Forever.webp",
+            "Farmacia": "https://i.ibb.co/VcTgbFZ9/Icon-Perks-pharmacy.webp",
+            "Vigilia": "https://i.ibb.co/F48xJTx6/Icon-Perks-vigil.webp",
+            "Despierta": "https://i.ibb.co/rK4C66T7/Icon-Perks-wake-Up.webp",
+            "Tenacidad": "https://i.ibb.co/zWW88Pvz/Icon-Perks-tenacity.webp",
+            "Corazonada": "https://i.ibb.co/Xk4GYWW0/Icon-Perks-detectives-Hunch.webp",
+            "Bajo vigilancia": "https://i.ibb.co/tdhTY6v/Icon-Perks-stake-Out.webp",
+            "Oportunidades": "https://i.ibb.co/hFBbHnX7/Icon-Perks-windows-Of-Opportunity.webp",
+            "Baila conmigo": "https://i.ibb.co/GQF9BYzD/Icon-Perks-dance-With-Me.webp",
+            "Arrebato": "https://i.ibb.co/gbGdv9xb/Icon-Perks-boil-Over.webp",
+            "Distracción": "https://i.ibb.co/995JppHZ/Icon-Perks-diversion.webp",
+            "Liberación": "https://i.ibb.co/JjdPbdKJ/Icon-Perks-deliverance.webp",
+            "Autodidacta": "https://i.ibb.co/7tvrTMS1/Icon-Perks-autodidact.webp",
+            "Ruptura": "https://i.ibb.co/r2c7QkSN/Icon-Perks-breakdown.webp",
+            "Postratamiento": "https://i.ibb.co/r2nGHX76/Icon-Perks-aftercare.webp",
+            "Distorsión": "https://i.ibb.co/XrmGh9Tw/Icon-Perks-distortion.webp",
+            "Solidaridad": "https://i.ibb.co/Kcg8ZzgZ/Icon-Perks-solidarity.webp",
+            "Serenidad": "https://i.ibb.co/spjJpw62/Icon-Perks-poised.webp",
+            "De frente": "https://i.ibb.co/mFH2JXhr/Icon-Perks-head-On.webp",
+            "Nos Vemos": "https://i.ibb.co/C3BT5TKh/Icon-Perks-flip-Flop.webp",
+            "Sujetate": "https://i.ibb.co/wNdnyTqp/Icon-Perks-buckle-Up.webp",
+            "El temple del hombre": "https://i.ibb.co/0NhBtvm/Icon-Perks-mettle-Of-Man.webp",
+            "Fuerza interior": "https://i.ibb.co/6RSvghBx/Icon-Perks-inner-Strength.webp",
+            "Fijación": "https://i.ibb.co/cXcMrpmK/Icon-Perks-fixated.webp",
+            "Mejor juntos": "https://i.ibb.co/0j1hTbKP/Icon-Perks-better-Together.webp",
+            "Niñero": "https://i.ibb.co/GvgFyZFY/Icon-Perks-babysitter.webp",
+            "Segundo aliento": "https://i.ibb.co/fVjzFWKB/Icon-Perks-second-Wind.webp",
+            "Camaradería": "https://i.ibb.co/60pghtG3/Icon-Perks-camaraderie.webp",
+            "Golpe de suerte": "https://i.ibb.co/CprjtR0p/Icon-Perks-lucky-Break.webp",
+            "Por Cualquier medio": "https://i.ibb.co/nNKz7DrN/Icon-Perks-any-Means-Necessary.webp",
+            "Fuga": "https://i.ibb.co/YFCj2NKB/Icon-Perks-breakout.webp",
+            "Extraoficialmente": "https://i.ibb.co/JjGBFS2G/Icon-Perks-off-The-Record.webp",
+            "Por la gente": "https://i.ibb.co/MDsqVc3d/Icon-Perks-for-The-People.webp",
+            "Arenque rojo": "https://i.ibb.co/mVDVZYxN/Icon-Perks-red-Herring.webp",
+            "Defensa del alma": "https://i.ibb.co/03wFYDb/Icon-Perks-soul-Guard.webp",
+            "Pacto de sangre": "https://i.ibb.co/6dn311Q/Icon-Perks-blood-Pact.webp",
+            "Alianza reprimida": "https://i.ibb.co/tTCj4yjH/Icon-Perks-repressed-Alliance.webp",
+            "Visionario": "https://i.ibb.co/hFFRMpww/Icon-Perks-visionary.webp",
+            "Medidas desesperadas": "https://i.ibb.co/rfvbPvkr/Icon-Perks-desperate-Measures.webp",
+            "Construido para durar": "https://i.ibb.co/KSs082S/Icon-Perks-built-To-Last.webp",
+            "Detallista": "https://i.ibb.co/ym04Y1jn/Icon-Perks-appraisal.webp",
+            "Engaño": "https://i.ibb.co/CsMNn5gP/Icon-Perks-deception.webp",
+            "Lucha de poderes": "https://i.ibb.co/mCcmVbQR/Icon-Perks-power-Struggle.webp",
+            "Vía rápida": "https://i.ibb.co/HfC1VWVS/Icon-Perks-fast-Track.webp",
+            "Éxito arrollador": "https://i.ibb.co/Cpf4C6jJ/Icon-Perks-smash-Hit.png",
+            "Autoconservación": "https://i.ibb.co/5gg17932/Icon-Perks-self-Preservation.webp",
+            "Contramedida": "https://i.ibb.co/5gg5LqV2/Icon-Perks-counterforce.webp",
+            "Resurgimiento": "https://i.ibb.co/GQCJSLGW/Icon-Perks-resurgence.webp",
+            "Mina cegadora": "https://i.ibb.co/d0q7Tc6H/Icon-Perks-blast-Mine.webp",
+            "Aguante el dolor": "https://i.ibb.co/TMt71dLG/Icon-Perks-bite-The-Bullet.webp",
+            "Granada aturdidora": "https://i.ibb.co/d4d43Tfn/Icon-Perks-flashbang.webp",
+            "Espíritu de novato": "https://i.ibb.co/pHj9qGd/Icon-Perks-rookie-Spirit.webp",
+            "Clarividencia": "https://i.ibb.co/Gf2cNKPs/Icon-Perks-clairvoyance.webp",
+            "Bendición: Paso de las Sombras": "https://i.ibb.co/Gf2cNKPs/Icon-Perks-clairvoyance.webp",
+            "Bendición: Círculo de sanación": "https://i.ibb.co/VcZ8VK60/Icon-Perks-boon-Circle-Of-Healing.webp",
+            "Superar": "https://i.ibb.co/DPcyGp3W/Icon-Perks-overcome.webp",
+            "Bono: Exponencial": "https://i.ibb.co/Tfv7MVn/Icon-Perks-boon-Exponential.webp",
+            "Correccion": "https://i.ibb.co/SDz1pcD7/Icon-Perks-corrective-Action.webp",
+            "Bendición: Teoría Oscura": "https://i.ibb.co/SXQFJYX1/Icon-Perks-boon-Dark-Theory.webp",
+            "Conexión empática": "https://i.ibb.co/QFyMzmnq/Icon-Perks-empathic-Connection.webp",
+            "Consejos de Papá": "https://i.ibb.co/VY0RxWVT/Icon-Perks-parental-Guidance.webp",
+            "Demasiado entusiasta": "https://i.ibb.co/pBCzZN4s/Icon-Perks-overzealous.webp",
+            "Enfoque interno": "https://i.ibb.co/v49n5XDc/Icon-Perks-inner-Focus.webp",
+            "Manifiesto residual": "https://i.ibb.co/KjzxKJKN/Icon-Perks-residual-Manifest.webp",
+            "Sistema de espionaje": "https://i.ibb.co/CsMxLrfS/Icon-Perks-wiretap.webp",
+            "Curación reactiva": "https://i.ibb.co/d0W387Xw/Icon-Perks-reactive-Healing.webp",
+            "Perfil bajo": "https://i.ibb.co/hRj8cN00/Icon-Perks-low-Profile.webp",
+            "Mejor que nuevo": "https://i.ibb.co/S7DcC088/Icon-Perks-better-Than-New.webp",
+            "Hiperconcentracion": "https://i.ibb.co/5WBRztXd/Icon-Perks-hyperfocus.webp",
+            "Consuelo": "https://i.ibb.co/Kp1TfF4z/Icon-Perks-reassurance.webp",
+            "Energía potencial": "https://i.ibb.co/Mywwjd8V/Icon-Perks-potential-Energy.webp",
+            "Conocimiento de la niebla": "https://i.ibb.co/Z6sS2wMN/Icon-Perks-fogwise.webp",
+            "Táctica rápida": "https://i.ibb.co/cc933z63/Icon-Perks-quick-Gambit.webp",
+            "Sueltate": "https://i.ibb.co/v48vyTbX/Icon-Perks-cut-Loose.webp",
+            "Competencia amistosa": "https://i.ibb.co/kVLbWH9k/Icon-Perks-friendly-Competition.webp",
+            "Trabajo en equipo: El poder de dos": "https://i.ibb.co/WNw2K5rz/Icon-Perks-teamwork-Power-Of-Two.webp",
+            "Personaje Secundario": "https://i.ibb.co/n81qGRhR/Icon-Perks-background-Player.webp",
+            "Impulso sangriento": "https://i.ibb.co/5x9qmJ2V/Icon-Perks-blood-Rush.webp",
+            "Trabajo en equipo: Sigilo colectivo": "https://i.ibb.co/93V0M2Sb/Icon-Perks-teamwork-Collective-Stealth.webp",
+            "Solucionador de problemas": "https://i.ibb.co/wFx53q04/Icon-Perks-troubleshooter.webp",
+            "Nacido para esto": "https://i.ibb.co/G3tC6gJT/Icon-Perks-made-For-This.webp",
+            "Chatarrero": "https://i.ibb.co/ZzZQ13Sw/Icon-Perks-scavenger.webp",
+            "Dramaturgia": "https://i.ibb.co/N21vgp1G/Icon-Perks-dramaturgy.webp",
+            "Compañero de escena": "https://i.ibb.co/QqSVjh1/Icon-Perks-scene-Partner.webp",
+            "Giro argumental": "https://i.ibb.co/ymNZBg70/Icon-Perks-plot-Twist.webp"
+        };
 
-        const perksAsesino = [
-            "Agitación", "Aleteo de cuervo", "Amenaza persistente", "Amor desmedido", "Anulación", 
-            "Apocalipsis", "Aprehensión", "Asesino implacable", "Audacia", "Autómata", 
-            "Baila conmigo", "Barbacoa y chile", "Bocanada", "Bofetada de realidad", "Cazador de cabezas", 
-            "Cazador furtivo", "Caza silenciosa", "Caza torpe", "Cercenador", "Cicatrices brutales", 
-            "Ciclón", "Claridad mortal", "Cobarde", "Colapso", "Conexión dolorosa", "Corrupción", 
-            "Degollador", "Dominación", "Eco sangriento", "Efecto dominó", "Elegido para morir", 
-            "Ermitaño", "Espanto", "Estatura imponente", "Fauces de la muerte", "Foco de atención", 
-            "Fuerza bruta", "Furia de la jauría", "Furia espiritual", "Garras de hierro", "Golpe bajo", 
-            "Grito ensordecedor", "Imparable", "Impresión duradera", "Incansable", "Inercia", 
-            "Intervención corrupta", "Llamado de la enfermera", "Llamarada", "Lluvia de sangre", 
-            "Maleficio: Caza menor", "Maleficio: Devorador de esperanza", "Maleficio: Duende", 
-            "Maleficio: Juguetón", "Maleficio: Muerte ineludible", "Maleficio: Nostalgia", 
-            "Maleficio: Pentimento", "Maleficio: Ruina", "Maleficio: Superstición", "Maleficio: Tierra carbonizada", 
-            "Maleficio: Tótem de la perdición", "Monstruoso santuario", "Mortal o inútil", "Murmullos", 
-            "No hay salida", "Ojo por ojo", "Oportunidad perdida", "Pánico desencadenado", "Pavor a los ciervos", 
-            "Pesadilla en vida", "Poder oculto", "Poderío", "Presencia atemorizante", "Prestigio", 
-            "Prolongación de agonía", "Rastro invisible", "Reacción violenta", "Represalia", 
-            "Resonancia de dolor", "Retribución", "Salvajismo", "Se acabó el juego", "Sepulturero", 
-            "Sombra de muerte", "Sordo", "Surgimiento", "Temblores trepidantes", "Tinta indeleble", 
-            "Tinkerer (Arreglador)", "Tormento", "Traición", "Trampero", "Venganza", "Voracidad"
-        ];
+        const basePerksAsesino = {};
+
+        let rolActual = 'superviviente';
+        let listaActual = Object.keys(basePerksSuperviviente);
+        let anguloActual = 0;
+        let estaGirando = false;
+        
+        const imagenesPrecaragadas = {};
+
+        function precargarImagenes() {
+            const baseDatosActiva = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
+            for (let perk in baseDatosActiva) {
+                const url = baseDatosActiva[perk];
+                if (!imagenesPrecaragadas[url]) {
+                    const img = new Image();
+                    img.src = url;
+                    imagenesPrecaragadas[url] = img;
+                }
+            }
+        }
+
+        let audioCtx = null;
+        function inicializarAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function reproducirSonidoTic() {
+            try {
+                inicializarAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.04);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.04);
+            } catch (e) {}
+        }
+
+        function reproducirSonidoGanador() {
+            try {
+                inicializarAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(554.37, now + 0.1);
+                osc.frequency.setValueAtTime(659.25, now + 0.2);
+                osc.frequency.setValueAtTime(880, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.9);
+            } catch (e) {}
+        }
 
         const coloresRuleta = [
             '#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', 
-            '#e67e22', '#1abc9c', '#e84393', '#00cec9', '#e17055'
+            '#e67e22', '#1abc9c', '#e84393', '#00cec9', '#e17055',
+            '#fd79a8', '#6c5ce7', '#00b894', '#fdcb6e', '#e17055',
+            '#00cec9', '#a29bfe', '#ffeaa7', '#fab1a0', '#74b9ff', '#55efc4',
+            '#ff7675', '#74b9ff', '#dfe6e9', '#d63031', '#0984e3', '#00b894',
+            '#e84393', '#fdcb6e', '#00cec9', '#e17055', '#a29bfe', '#ffeaa7',
+            '#ff6b6b', '#48dbfb', '#1dd1a1', '#feca57', '#ff9ff3', '#54a0ff',
+            '#ff9f43', '#ee5253', '#0abde3', '#10ac84', '#5f27cd', '#222f3e',
+            '#e056fd', '#badc58', '#f0932b', '#eb4d4b', '#6ab04c', '#487eb0',
+            '#ff7979', '#badc58', '#7ed6df', '#e056fd', '#686de0', '#30336b'
         ];
-
-        let rolActual = 'superviviente';
-        let listaActual = perksSuperviviente;
-        let anguloActual = 0;
-        let estaGirando = false;
 
         const canvas = document.getElementById('canvasRuleta');
         const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
         const centroX = canvas.width / 2;
         const centroY = canvas.height / 2;
-        const radio = canvas.width / 2 - 12;
+        const radio = canvas.width / 2 - 25;
 
         function dibujarRuleta(anguloRotacion = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const total = listaActual.length;
+            
+            if (total === 0) {
+                ctx.beginPath();
+                ctx.arc(centroX, centroY, radio, 0, 2 * Math.PI);
+                ctx.fillStyle = '#111';
+                ctx.fill();
+                return;
+            }
+
             const arcos = (2 * Math.PI) / total;
 
             listaActual.forEach((perk, index) => {
@@ -256,31 +421,32 @@
                 ctx.fillStyle = coloresRuleta[index % coloresRuleta.length];
                 ctx.fill();
                 ctx.strokeStyle = '#111';
-                ctx.lineWidth = 1.5;
+                ctx.lineWidth = 3;
                 ctx.stroke();
 
                 ctx.save();
                 ctx.translate(centroX, centroY);
                 ctx.rotate(anguloInicio + arcos / 2);
-                
                 ctx.textAlign = 'right';
-                ctx.fillStyle = '#111';
-                ctx.font = 'bold 10px sans-serif';
                 
-                let textoMostrar = perk;
-                if (textoMostrar.length > 25) {
-                    textoMostrar = textoMostrar.substring(0, 23) + '...';
-                }
-
-                ctx.fillText(textoMostrar, radio - 18, 3.5);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 22px system-ui, -apple-system, sans-serif';
+                ctx.shadowColor = '#000000';
+                ctx.shadowBlur = 6;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                
+                let texto = perk;
+                if (texto.length > 20) texto = texto.substring(0, 18) + '...';
+                ctx.fillText(texto, radio - 35, 8);
                 ctx.restore();
             });
 
             ctx.beginPath();
-            ctx.arc(centroX, centroY, 35, 0, 2 * Math.PI);
+            ctx.arc(centroX, centroY, 70, 0, 2 * Math.PI);
             ctx.fillStyle = '#222';
             ctx.fill();
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 6;
             ctx.strokeStyle = '#444';
             ctx.stroke();
         }
@@ -288,35 +454,46 @@
         function setRol(rol) {
             if (estaGirando) return;
             rolActual = rol;
-            listaActual = (rol === 'superviviente') ? perksSuperviviente : perksAsesino;
+            listaActual = (rol === 'superviviente') ? Object.keys(basePerksSuperviviente) : Object.keys(basePerksAsesino);
             
             document.getElementById('btnSup').classList.toggle('active', rol === 'superviviente');
             document.getElementById('btnAsesino').classList.toggle('active', rol === 'asesino');
-
             document.getElementById('centroGanador').classList.remove('mostrar');
 
-            anguloActual = 0;
-            document.getElementById('resultado').innerText = "¡Rol cambiado! Gira para probar suerte.";
+            precargarImagenes();
+
+            const total = listaActual.length;
+            anguloActual = total > 0 ? - (Math.PI / 2) - ((2 * Math.PI) / total) / 2 : 0;
+            
+            document.getElementById('resultado').innerText = total === 0 ? "Aún no hay habilidades cargadas." : "¡Gira para probar suerte!";
             dibujarRuleta(anguloActual);
         }
 
         function iniciarGiro() {
             if (estaGirando) return;
+            if (listaActual.length === 0) {
+                alert("Primero debes agregar al menos una habilidad.");
+                return;
+            }
+
+            inicializarAudio();
             estaGirando = true;
             document.getElementById('btnGirar').disabled = true;
             document.getElementById('resultado').innerText = "Girando...";
-            
             document.getElementById('centroGanador').classList.remove('mostrar');
 
             const totalPerks = listaActual.length;
             const arcos = (2 * Math.PI) / totalPerks;
+            
             const indiceGanador = Math.floor(Math.random() * totalPerks);
-
-            const vueltas = 7 * 2 * Math.PI; 
-            const objetivoAngulo = vueltas + (3 * Math.PI / 2) - (indiceGanador * arcos) - (arcos / 2);
+            const vueltas = 10 * 2 * Math.PI; 
+            
+            const anguloBaseInicial = - (Math.PI / 2);
+            const objetivoAngulo = vueltas + (anguloBaseInicial - (indiceGanador * arcos) - (arcos / 2) - anguloActual);
 
             let tiempoInicio = null;
-            const duracion = 5000;
+            const duracion = 7000; 
+            let ultimoIndiceSonido = -1;
 
             function animarGiro(tiempoActual) {
                 if (!tiempoInicio) tiempoInicio = tiempoActual;
@@ -324,9 +501,17 @@
                 const progreso = Math.min(tiempoTranscurrido / duracion, 1);
                 
                 const easeProgreso = 1 - Math.pow(1 - progreso, 3);
-
                 const anguloActualAnimacion = anguloActual + (objetivoAngulo * easeProgreso);
+                
                 dibujarRuleta(anguloActualAnimacion);
+
+                const anguloRelativo = (anguloActualAnimacion - (-Math.PI/2 - arcos/2)) % (2 * Math.PI);
+                const indiceActualAudio = Math.floor((2 * Math.PI - (anguloRelativo < 0 ? anguloRelativo + 2 * Math.PI : anguloRelativo)) / arcos) % totalPerks;
+                
+                if (indiceActualAudio !== ultimoIndiceSonido) {
+                    reproducirSonidoTic();
+                    ultimoIndiceSonido = indiceActualAudio;
+                }
 
                 if (progreso < 1) {
                     requestAnimationFrame(animarGiro);
@@ -336,17 +521,19 @@
                     anguloActual = (anguloActual + objetivoAngulo) % (2 * Math.PI);
                     
                     const perkGanadora = listaActual[indiceGanador];
+                    const baseDatosActiva = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
+                    const urlImagen = baseDatosActiva[perkGanadora];
 
-                    document.getElementById('resultado').innerHTML = `¡Ganador:<br><span style="color:#ffffff; font-size:1.5rem; text-shadow: 0 0 10px #d91e18;">${perkGanadora}</span>!`;
+                    reproducirSonidoGanador();
+
+                    document.getElementById('resultado').innerHTML = `¡Ganador:<br><span style="color:#ffffff; font-size:1.4rem; text-shadow: 0 0 10px #d91e18;">${perkGanadora}</span>!`;
 
                     const centroGanador = document.getElementById('centroGanador');
                     document.getElementById('nombreGanadorCentro').innerText = perkGanadora;
                     
-                    document.getElementById('imagenGanadoraCentro').src = "https://raw.githubusercontent.com/gio-del-rio/dbd-icons-placeholder/main/icon_perk.png";
-                    document.getElementById('imagenGanadoraCentro').onerror = function() {
-                        this.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70' viewBox='0 0 24 24' fill='none' stroke='%23f1c40f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>";
-                    };
-
+                    const imgElement = document.getElementById('imagenGanadoraCentro');
+                    imgElement.src = urlImagen;
+                    
                     centroGanador.classList.add('mostrar');
                 }
             }
@@ -354,7 +541,10 @@
             requestAnimationFrame(animarGiro);
         }
 
-        dibujarRuleta(0);
+        precargarImagenes();
+        const totalInit = listaActual.length;
+        anguloActual = totalInit > 0 ? - (Math.PI / 2) - ((2 * Math.PI) / totalInit) / 2 : 0;
+        dibujarRuleta(anguloActual);
     </script>
 </body>
 </html>
