@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruleta Pro DBD - Grande y Fluida</title>
+    <title>Ruleta Pro DBD - 60 FPS Fluid</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
@@ -13,7 +13,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             overflow-x: hidden;
             padding: 20px;
@@ -30,7 +30,7 @@
         }
 
         .controles {
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             display: flex;
             gap: 15px;
             z-index: 10;
@@ -55,31 +55,41 @@
             box-shadow: 0 0 15px rgba(217, 30, 24, 0.6); 
         }
 
-        /* Contenedor más grande */
+        .layout-principal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+            max-width: 1400px;
+        }
+
         .ruleta-box {
             position: relative;
-            width: 780px;
-            height: 780px;
+            width: 900px;
+            height: 900px;
+            border-radius: 50%;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
+            box-shadow: 0 0 30px rgba(0,0,0,0.9), 0 0 15px rgba(217, 30, 24, 0.3);
+            border: 4px solid #333;
+            flex-shrink: 0;
         }
 
-        /* Canvas ampliado visualmente a 760px */
         canvas {
-            width: 760px;
-            height: 760px;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            border: 12px solid #1a1a1a;
-            background: #111;
             will-change: transform;
             transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
         .indicador {
             position: absolute;
-            top: -20px;
+            top: -10px;
             left: 50%;
             transform: translateX(-50%);
             width: 0; 
@@ -95,14 +105,14 @@
             position: absolute;
             width: 200px;
             height: 200px;
-            background: rgba(15, 15, 15, 0.98);
+            background: rgba(20, 20, 20, 0.95);
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 4px solid #d91e18;
-            box-shadow: 0 0 25px rgba(217, 30, 24, 0.8);
+            border: 6px solid #d91e18;
+            box-shadow: 0 0 25px rgba(217, 30, 24, 0.9);
             z-index: 8;
             opacity: 0;
             transform: scale(0.5);
@@ -137,12 +147,105 @@
             line-height: 1.1;
         }
 
+        /* Panel derecho rediseñado con el contenedor de la build */
+        .panel-derecho {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .build-container {
+            background: #121212;
+            border: 2px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            width: 380px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+        }
+
+        .build-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #f1c40f;
+            font-weight: bold;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+        }
+
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .slot {
+            background: #090909;
+            border: 2px dashed #333;
+            border-radius: 8px;
+            height: 75px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .slot.lleno {
+            border: 2px solid #d91e18;
+            border-style: solid;
+            background: #1a1a1a;
+        }
+
+        .slot img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 4px rgba(241, 196, 15, 0.4));
+        }
+
+        .slot span {
+            font-size: 0.65rem;
+            color: #777;
+            text-align: center;
+            padding: 0 2px;
+        }
+
+        .slot.lleno span {
+            display: none; /* Oculta texto genérico cuando tiene imagen */
+        }
+
+        .btn-limpiar {
+            width: 100%;
+            background: #1f1f1f;
+            color: #bbb;
+            border: 1px solid #444;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+        .btn-limpiar:hover {
+            background: #d91e18;
+            color: white;
+            border-color: #d91e18;
+        }
+
         #btnGirar {
-            margin-top: 25px;
             background: linear-gradient(135deg, #d91e18 0%, #610b08 100%);
             color: white; 
             border: none; 
-            padding: 14px 38px;
+            padding: 16px 36px;
             font-size: 1.2rem; 
             font-weight: bold; 
             border-radius: 8px;
@@ -151,20 +254,20 @@
             letter-spacing: 2px;
             transition: all 0.2s; 
             box-shadow: 0 5px 20px rgba(217, 30, 24, 0.5);
-            z-index: 10;
+            z-index: 20;
+            width: 100%;
         }
         #btnGirar:hover:not(:disabled) { background: linear-gradient(135deg, #ff2b24 0%, #8a110e 100%); transform: translateY(-2px); }
         #btnGirar:active:not(:disabled) { transform: translateY(1px); }
         #btnGirar:disabled { background: #444; cursor: not-allowed; box-shadow: none; color: #777;}
 
         #resultado {
-            margin-top: 15px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #f1c40f;
-            min-height: 2.2em;
             text-align: center;
             text-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
+            max-width: 350px;
         }
     </style>
 </head>
@@ -177,19 +280,36 @@
         <button class="btn-rol" id="btnAsesino" onclick="setRol('asesino')">Asesino</button>
     </div>
 
-    <div class="ruleta-box">
-        <div class="indicador"></div>
-        <!-- Resolución interna balanceada a 1000x1000 para mantener 60 FPS estables -->
-        <canvas id="canvasRuleta" width="1000" height="1000"></canvas>
-        
-        <div id="centroGanador" class="centro-ganador">
-            <div id="nombreGanadorCentro" class="texto-perk"></div>
-            <img id="imagenGanadoraCentro" src="" alt="Icono Perk">
+    <div class="layout-principal">
+        <div class="ruleta-box">
+            <div class="indicador"></div>
+            <canvas id="canvasRuleta" width="1000" height="1000"></canvas>
+            
+            <div id="centroGanador" class="centro-ganador">
+                <div id="nombreGanadorCentro" class="texto-perk"></div>
+                <img id="imagenGanadoraCentro" src="" alt="Icono Perk">
+            </div>
+        </div>
+
+        <div class="panel-derecho">
+            <!-- Cuadro de Build con 4 slots -->
+            <div class="build-container">
+                <div class="build-header">
+                    <span id="tituloBuild">TU BUILD ACTUAL (0/4)</span>
+                </div>
+                <div class="slots-grid">
+                    <div class="slot" id="slot-0"><span>Slot 1</span></div>
+                    <div class="slot" id="slot-1"><span>Slot 2</span></div>
+                    <div class="slot" id="slot-2"><span>Slot 3</span></div>
+                    <div class="slot" id="slot-3"><span>Slot 4</span></div>
+                </div>
+                <button class="btn-limpiar" onclick="limpiarBuild()">Limpiar Build</button>
+            </div>
+
+            <button id="btnGirar" onclick="iniciarGiro()">Girar Ruleta</button>
+            <div id="resultado">¡Gira para escoger tu habilidad!</div>
         </div>
     </div>
-
-    <button id="btnGirar" onclick="iniciarGiro()">Girar Ruleta</button>
-    <div id="resultado">¡Gira para escoger tu habilidad!</div>
 
     <script>
         const basePerksSuperviviente = {
@@ -306,15 +426,61 @@
             "Chatarrero": "https://i.ibb.co/ZzZQ13Sw/Icon-Perks-scavenger.webp",
             "Dramaturgia": "https://i.ibb.co/N21vgp1G/Icon-Perks-dramaturgy.webp",
             "Compañero de escena": "https://i.ibb.co/QqSVjh1/Icon-Perks-scene-Partner.webp",
-            "Giro argumental": "https://i.ibb.co/ymNZBg70/Icon-Perks-plot-Twist.webp"
+            "Giro argumental": "https://i.ibb.co/ymNZBg70/Icon-Perks-plot-Twist.webp",
+            "Estrella de la Suerte": "https://i.ibb.co/YFXFQLP0/Icon-Perks-lucky-Star.webp",
+            "Ágil": "https://i.ibb.co/xSpzVK7h/Icon-Perks-light-Footed.webp",
+            "Trampa química": "https://i.ibb.co/nqhHt0GM/Icon-Perks-chemical-Trap.webp",
+            "Campeón de la Luz": "https://i.ibb.co/d4fzmQ0v/Icon-Perks-champion-Of-Light.webp",
+            "Beneficio: Iluminación": "https://i.ibb.co/QFDQ9f87/Icon-Perks-boon-Illumination.webp",
+            "Fecha límite": "https://i.ibb.co/VYMt2QKH/Icon-Perks-deadline.webp",
+            "Invocación: Arañas Tejedoras": "https://i.ibb.co/T3GMDH4/Icon-Perks-invocation-Weaving-Spiders.webp",
+            "Fortaleza en las sombras": "https://i.ibb.co/qPV7dzf/Icon-Perks-strength-In-Shadows.webp",
+            "Malicia": "https://i.ibb.co/hRmcQj1g/Icon-Perks-wicked.webp",
+            "Ilusión reflejada": "https://i.ibb.co/gF7MFNtG/Icon-Perks-mirrored-Illusion.webp",
+            "Inspiración bárdica": "https://i.ibb.co/JRndRCGD/Icon-Perks-bardic-Inspiration.webp",
+            "Mirada fija": "https://i.ibb.co/Y7605xky/Icon-Perks-still-Sight.webp",
+            "Ojos de belmont": "https://i.ibb.co/zTDfj8J6/Icon-Perks-Eyes-Of-Belmont.webp",
+            "Exultación": "https://i.ibb.co/bRJNp9cC/Icon-Perks-Exultation.webp",
+            "Momento de gloria": "https://i.ibb.co/qMrGscvL/Icon-Perks-Moment-Of-Glory.webp",
+            "Invocación: Cuervos Traicioneros": "https://i.ibb.co/FbgrBQPx/Icon-Perks-invocation-Treacherous-Crows.webp",
+            "Cargar a cuestas": "https://i.ibb.co/V0ngTNDN/Icon-Perks-shoulder-The-Burden.webp",
+            "Punto y aparte": "https://i.ibb.co/TMr3pc9z/Icon-Perks-clean-Break.webp",
+            "No hagas daño": "https://i.ibb.co/zTzjcB83/T-UI-icons-Perks-Do-No-Harm.webp",
+            "El deber de cuidar": "https://i.ibb.co/WpFQ2K3h/T-UI-icons-Perks-Duty-Of-Care.webp",
+            "Respuesta rápida": "https://i.ibb.co/93b1bmYN/T-UI-icons-Perks-Rapid-Response.webp",
+            "Ingenio apocalíptico": "https://i.ibb.co/Pz9nq4G7/Icon-Perks-apocalyptic-Ingenuity.webp",
+            "Ven por mi": "https://i.ibb.co/KpvsvkLF/Icon-Perks-come-And-Get-Me.webp",
+            "Trabajo en equipo: Entereza": "https://i.ibb.co/svgQ7Gyx/Icon-Perks-teamwork-Toughen-Up.webp",
+            "Convicción": "https://i.ibb.co/MDRx9k32/Icon-Perks-conviction.webp",
+            "Último Enfrentamiento": "https://i.ibb.co/tpKVDNmR/Icon-Perks-last-Stand.webp",
+            "Trabajo en equipo: Lanzamiento": "https://i.ibb.co/bg6Zjkcw/Icon-Perks-teamwork-Throw-Down.webp",
+            "Vida itinerante": "https://i.ibb.co/Xrx5PXBX/Icon-Perks-Road-Life.webp",
+            "Uno, Dos, Tres, Cuatro": "https://i.ibb.co/jk8Rcv2h/Icon-Perks-One-Two-Three-Four.webp",
+            "Notas Fantasma": "https://i.ibb.co/5WNvSFdX/Icon-Perks-Ghost-Notes.webp",
+            "Bada Bada Bum": "https://i.ibb.co/JjTJhfcX/Icons-Perks-Bada-Bada-Boom.webp",
+            "Cambio de plan": "https://i.ibb.co/k2rrN9BB/Icons-Perks-Change-Of-Plan.webp",
+            "Trabajo en equipo: Circuito completo": "https://i.ibb.co/WpVzFQqr/Icons-Perks-Teamwork-Full-Circuit.webp",
+            "Percepción extrasensorial": "https://i.ibb.co/8nHP0MDR/Icons-Perks-Extrasensory-Perception.webp",
+            "Te vemos": "https://i.ibb.co/zjYKD5F/Icons-Perks-We-See-You.webp",
+            "Trabajo en equipo: Tono Gentil": "https://i.ibb.co/rKGdJFgm/Icons-Perks-Teamwork-Soft-Spoken.webp",
+            "Un lugar para nosotros": "https://i.ibb.co/fYPX8Z2X/Icons-Perks-a-Place-For-Us.webp",
+            "Cinco movimientos adelante": "https://i.ibb.co/GQtRwV3W/Icons-Perks-Five-Moves-Ahead.webp",
+            "Estado de fluido": "https://i.ibb.co/4nV47ZvN/Icons-Perks-Flow-State.webp",
+            "Interrogatorio": "https://i.ibb.co/3m5WY6cn/T-UI-icons-Perks-Cross-Examination.webp",
+            "Echar una mano": "https://i.ibb.co/hkVhFHY/T-UI-icons-Perks-Lenda-Hand.webp",
+            "Máxima velocidad": "https://i.ibb.co/XZGcLQMf/T-UI-icons-Perks-Wide-Open-Throttle.webp",
+            "Cosechas lo que siembras": "https://i.ibb.co/HTHxCFSP/T-UI-icons-Perks-Fruits-Of-Your-Labor.webp",
+            "Grito de salvación": "https://i.ibb.co/676D9Twc/T-UI-icons-Perks-Salvations-Cry.webp",
+            "Bendicion: Determinacion": "https://i.ibb.co/ytJk37R/T-UI-icons-Perks-Boon-Steadfast.webp"
         };
 
         const basePerksAsesino = {};
 
         let rolActual = 'superviviente';
         let listaActual = Object.keys(basePerksSuperviviente);
-        let anguloActual = 0;
+        let anguloActualGrados = 0;
         let estaGirando = false;
+        let buildActual = [];
         
         const imagenesPrecaragadas = {};
 
@@ -395,7 +561,7 @@
         const centroY = canvas.height / 2;
         const radio = canvas.width / 2 - 25;
 
-        function dibujarRuleta(anguloRotacion = 0) {
+        function dibujarRuletaEstatica() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const total = listaActual.length;
             
@@ -410,7 +576,7 @@
             const arcos = (2 * Math.PI) / total;
 
             listaActual.forEach((perk, index) => {
-                const anguloInicio = anguloRotacion + (index * arcos);
+                const anguloInicio = index * arcos;
                 const anguloFin = anguloInicio + arcos;
 
                 ctx.beginPath();
@@ -459,17 +625,47 @@
             document.getElementById('btnAsesino').classList.toggle('active', rol === 'asesino');
             document.getElementById('centroGanador').classList.remove('mostrar');
 
+            limpiarBuild();
             precargarImagenes();
 
             const total = listaActual.length;
-            anguloActual = total > 0 ? - (Math.PI / 2) - ((2 * Math.PI) / total) / 2 : 0;
+            anguloActualGrados = total > 0 ? - 90 - (360 / total) / 2 : 0;
+            canvas.style.transform = `translateZ(0) rotate(${anguloActualGrados}deg)`;
             
             document.getElementById('resultado').innerText = total === 0 ? "Aún no hay habilidades cargadas." : "¡Gira para probar suerte!";
-            dibujarRuleta(anguloActual);
+            dibujarRuletaEstatica();
+        }
+
+        function actualizarUIBuild() {
+            for (let i = 0; i < 4; i++) {
+                const slotEl = document.getElementById(`slot-${i}`);
+                if (buildActual[i]) {
+                    const perkNombre = buildActual[i];
+                    const baseDatosActiva = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
+                    const urlImg = baseDatosActiva[perkNombre];
+                    
+                    slotEl.classList.add('lleno');
+                    slotEl.innerHTML = `<img src="${urlImg}" title="${perkNombre}" alt="${perkNombre}">`;
+                } else {
+                    slotEl.classList.remove('lleno');
+                    slotEl.innerHTML = `<span>Slot ${i + 1}</span>`;
+                }
+            }
+            document.getElementById('tituloBuild').innerText = `TU BUILD ACTUAL (${buildActual.length}/4)`;
+        }
+
+        function limpiarBuild() {
+            if (estaGirando) return;
+            buildActual = [];
+            actualizarUIBuild();
         }
 
         function iniciarGiro() {
             if (estaGirando) return;
+            if (buildActual.length >= 4) {
+                alert("¡Ya tienes la build completa (4/4)! Limpia la build para empezar de nuevo.");
+                return;
+            }
             if (listaActual.length === 0) {
                 alert("Primero debes agregar al menos una habilidad.");
                 return;
@@ -482,13 +678,13 @@
             document.getElementById('centroGanador').classList.remove('mostrar');
 
             const totalPerks = listaActual.length;
-            const arcos = (2 * Math.PI) / totalPerks;
+            const gradosPorSector = 360 / totalPerks;
             
             const indiceGanador = Math.floor(Math.random() * totalPerks);
-            const vueltas = 10 * 2 * Math.PI; 
+            const vueltasExtra = 10 * 360; 
             
-            const anguloBaseInicial = - (Math.PI / 2);
-            const objetivoAngulo = vueltas + (anguloBaseInicial - (indiceGanador * arcos) - (arcos / 2) - anguloActual);
+            const anguloBaseInicial = -90;
+            const objetivoGrados = vueltasExtra + (anguloBaseInicial - (indiceGanador * gradosPorSector) - (gradosPorSector / 2) - anguloActualGrados);
 
             let tiempoInicio = null;
             const duracion = 7000; 
@@ -500,12 +696,13 @@
                 const progreso = Math.min(tiempoTranscurrido / duracion, 1);
                 
                 const easeProgreso = 1 - Math.pow(1 - progreso, 3);
-                const anguloActualAnimacion = anguloActual + (objetivoAngulo * easeProgreso);
+                const anguloActualAnimacion = anguloActualGrados + (objetivoGrados * easeProgreso);
                 
-                dibujarRuleta(anguloActualAnimacion);
+                canvas.style.transform = `translateZ(0) rotate(${anguloActualAnimacion}deg)`;
 
-                const anguloRelativo = (anguloActualAnimacion - (-Math.PI/2 - arcos/2)) % (2 * Math.PI);
-                const indiceActualAudio = Math.floor((2 * Math.PI - (anguloRelativo < 0 ? anguloRelativo + 2 * Math.PI : anguloRelativo)) / arcos) % totalPerks;
+                const anguloNormalizado = (anguloActualAnimacion % 360 + 360) % 360;
+                const anguloRelativo = (360 - anguloNormalizado - 90 - gradosPorSector/2) % 360;
+                const indiceActualAudio = Math.floor(((anguloRelativo < 0 ? anguloRelativo + 360 : anguloRelativo) / gradosPorSector)) % totalPerks;
                 
                 if (indiceActualAudio !== ultimoIndiceSonido) {
                     reproducirSonidoTic();
@@ -517,13 +714,19 @@
                 } else {
                     estaGirando = false;
                     document.getElementById('btnGirar').disabled = false;
-                    anguloActual = (anguloActual + objetivoAngulo) % (2 * Math.PI);
+                    anguloActualGrados = (anguloActualGrados + objetivoGrados) % 360;
                     
                     const perkGanadora = listaActual[indiceGanador];
                     const baseDatosActiva = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
                     const urlImagen = baseDatosActiva[perkGanadora];
 
                     reproducirSonidoGanador();
+
+                    // Agregar al slot de la build
+                    if (buildActual.length < 4) {
+                        buildActual.push(perkGanadora);
+                        actualizarUIBuild();
+                    }
 
                     document.getElementById('resultado').innerHTML = `¡Ganador:<br><span style="color:#ffffff; font-size:1.4rem; text-shadow: 0 0 10px #d91e18;">${perkGanadora}</span>!`;
 
@@ -542,8 +745,9 @@
 
         precargarImagenes();
         const totalInit = listaActual.length;
-        anguloActual = totalInit > 0 ? - (Math.PI / 2) - ((2 * Math.PI) / totalInit) / 2 : 0;
-        dibujarRuleta(anguloActual);
+        anguloActualGrados = totalInit > 0 ? - 90 - (360 / totalInit) / 2 : 0;
+        dibujarRuletaEstatica();
+        canvas.style.transform = `translateZ(0) rotate(${anguloActualGrados}deg)`;
     </script>
 </body>
 </html>
