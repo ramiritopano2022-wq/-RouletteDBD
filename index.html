@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruleta Pro DBD - 60 FPS Fluid</title>
+    <title>Ruleta Pro DBD - Chayanne Edition</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
@@ -147,7 +147,6 @@
             line-height: 1.1;
         }
 
-        /* Panel derecho rediseñado con el contenedor de la build */
         .panel-derecho {
             display: flex;
             flex-direction: column;
@@ -195,6 +194,7 @@
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .slot.lleno {
@@ -218,7 +218,7 @@
         }
 
         .slot.lleno span {
-            display: none; /* Oculta texto genérico cuando tiene imagen */
+            display: none;
         }
 
         .btn-limpiar {
@@ -269,6 +269,172 @@
             text-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
             max-width: 350px;
         }
+
+        /* OVERLAY CINEMATICO CHAYANNE */
+        #chayanneOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        #chayanneOverlay.activo {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .chayanne-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 700px;
+            padding: 30px;
+            animation: aparecerChayanne 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes aparecerChayanne {
+            0% { transform: translateY(-50px) scale(0.8); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .chayanne-content img {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.8));
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 3px solid #f1c40f;
+            background: rgba(20,20,20,0.8);
+            padding: 10px;
+        }
+        .chayanne-title {
+            font-size: 2.5rem;
+            color: #f1c40f;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(241, 196, 15, 0.7);
+        }
+        .chayanne-desc {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+            background: rgba(25, 25, 25, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #444;
+        }
+        .btn-cerrar-overlay {
+            background: #d91e18;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .btn-cerrar-overlay:hover {
+            background: #ff2b24;
+            transform: scale(1.05);
+        }
+
+        /* MODAL SELECTOR DE HABILIDAD PARA SLOT VACÍO */
+        #modalSelector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.85);
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #151515;
+            border: 3px solid #d91e18;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+        }
+        .modal-header {
+            padding: 20px;
+            background: #1f1f1f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #333;
+        }
+        .modal-header h3 {
+            color: #f1c40f;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .modal-close:hover { color: white; }
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .perk-option {
+            background: #222;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .perk-option:hover {
+            border-color: #f1c40f;
+            background: #2a2a2a;
+            transform: translateY(-2px);
+        }
+        .perk-option img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+        .perk-option span {
+            font-size: 0.75rem;
+            color: #ddd;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -292,16 +458,15 @@
         </div>
 
         <div class="panel-derecho">
-            <!-- Cuadro de Build con 4 slots -->
             <div class="build-container">
                 <div class="build-header">
                     <span id="tituloBuild">TU BUILD ACTUAL (0/4)</span>
                 </div>
                 <div class="slots-grid">
-                    <div class="slot" id="slot-0"><span>Slot 1</span></div>
-                    <div class="slot" id="slot-1"><span>Slot 2</span></div>
-                    <div class="slot" id="slot-2"><span>Slot 3</span></div>
-                    <div class="slot" id="slot-3"><span>Slot 4</span></div>
+                    <div class="slot" id="slot-0" onclick="clickSlot(0)"><span>Slot 1</span></div>
+                    <div class="slot" id="slot-1" onclick="clickSlot(1)"><span>Slot 2</span></div>
+                    <div class="slot" id="slot-2" onclick="clickSlot(2)"><span>Slot 3</span></div>
+                    <div class="slot" id="slot-3" onclick="clickSlot(3)"><span>Slot 4</span></div>
                 </div>
                 <button class="btn-limpiar" onclick="limpiarBuild()">Limpiar Build</button>
             </div>
@@ -311,8 +476,41 @@
         </div>
     </div>
 
+    <!-- OVERLAY CINEMATICO CHAYANNE -->
+    <div id="chayanneOverlay">
+        <div class="chayanne-content">
+            <img src="https://i.ibb.co/xSvhqfHD/4-sin-titulo-20260915031514.png" alt="Chayanne Perk">
+            <div class="chayanne-title">Chayanne (Slot Vacío)</div>
+            <div class="chayanne-desc">
+                <strong>¡Torero del Ente!</strong><br>
+                Al equipar esta habilidad mítica, tienes el poder absoluto de elegir cualquier habilidad de todo el juego para rellenar este slot. El encanto de Chayanne desorienta al Asesino durante 60 segundos y otorga un subidón de energía imparable a todo tu equipo.
+            </div>
+            <button class="btn-cerrar-overlay" onclick="cerrarChayanneCinematico()">Continuar Partida</button>
+        </div>
+    </div>
+
+    <!-- MODAL SELECTOR DE HABILIDAD -->
+    <div id="modalSelector">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitulo">Selecciona una Habilidad</h3>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO PERSONALIZADO DE CHAYANNE -->
+    <audio id="audioChayanne" src="ahora tu te vas chyanne.mp3" preload="auto"></audio>
+
     <script>
+        const imagenRuletaChayanne = "https://i.ibb.co/xSvhqfHD/4-sin-titulo-20260915031514.png";
+        const imagenSlotChayanne = "https://i.ibb.co/MyF25HmK/4-sin-titulo-20260915040945.png";
+
         const basePerksSuperviviente = {
+            "Chayanne": imagenRuletaChayanne,
             "Demuestras lo que vales": "https://i.ibb.co/s9TqQXfJ/Icon-Perks-prove-Thyself.webp",
             "Vínculo": "https://i.ibb.co/SXYxRdgM/Icon-Perks-bond-1.webp",   
             "Líder": "https://i.ibb.co/KjjbTsyV/Icon-Perks-leader.webp",
@@ -477,10 +675,11 @@
         const basePerksAsesino = {};
 
         let rolActual = 'superviviente';
-        let listaActual = Object.keys(basePerksSuperviviente);
+        let listaActual = [];
         let anguloActualGrados = 0;
         let estaGirando = false;
         let buildActual = [];
+        let slotSeleccionadoParaCambiar = null;
         
         const imagenesPrecaragadas = {};
 
@@ -494,6 +693,9 @@
                     imagenesPrecaragadas[url] = img;
                 }
             }
+            const imgSlot = new Image();
+            imgSlot.src = imagenSlotChayanne;
+            imagenesPrecaragadas[imagenSlotChayanne] = imgSlot;
         }
 
         let audioCtx = null;
@@ -561,6 +763,12 @@
         const centroY = canvas.height / 2;
         const radio = canvas.width / 2 - 25;
 
+        function actualizarListaRuleta() {
+            const baseDatos = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
+            const todasPerks = Object.keys(baseDatos);
+            listaActual = todasPerks.filter(perk => !buildActual.includes(perk));
+        }
+
         function dibujarRuletaEstatica() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const total = listaActual.length;
@@ -619,21 +827,12 @@
         function setRol(rol) {
             if (estaGirando) return;
             rolActual = rol;
-            listaActual = (rol === 'superviviente') ? Object.keys(basePerksSuperviviente) : Object.keys(basePerksAsesino);
-            
             document.getElementById('btnSup').classList.toggle('active', rol === 'superviviente');
             document.getElementById('btnAsesino').classList.toggle('active', rol === 'asesino');
             document.getElementById('centroGanador').classList.remove('mostrar');
 
             limpiarBuild();
             precargarImagenes();
-
-            const total = listaActual.length;
-            anguloActualGrados = total > 0 ? - 90 - (360 / total) / 2 : 0;
-            canvas.style.transform = `translateZ(0) rotate(${anguloActualGrados}deg)`;
-            
-            document.getElementById('resultado').innerText = total === 0 ? "Aún no hay habilidades cargadas." : "¡Gira para probar suerte!";
-            dibujarRuletaEstatica();
         }
 
         function actualizarUIBuild() {
@@ -641,8 +840,13 @@
                 const slotEl = document.getElementById(`slot-${i}`);
                 if (buildActual[i]) {
                     const perkNombre = buildActual[i];
-                    const baseDatosActiva = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
-                    const urlImg = baseDatosActiva[perkNombre];
+                    let urlImg = "";
+                    if (perkNombre === "Chayanne") {
+                        urlImg = imagenSlotChayanne;
+                    } else {
+                        const baseDatosActiva = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
+                        urlImg = baseDatosActiva[perkNombre];
+                    }
                     
                     slotEl.classList.add('lleno');
                     slotEl.innerHTML = `<img src="${urlImg}" title="${perkNombre}" alt="${perkNombre}">`;
@@ -658,6 +862,68 @@
             if (estaGirando) return;
             buildActual = [];
             actualizarUIBuild();
+            actualizarListaRuleta();
+
+            const total = listaActual.length;
+            anguloActualGrados = total > 0 ? -90 - (360 / total) / 2 : 0;
+            canvas.style.transform = `translateZ(0) rotate(${anguloActualGrados}deg)`;
+            document.getElementById('resultado').innerText = "¡Gira para escoger tu habilidad!";
+            dibujarRuletaEstatica();
+        }
+
+        function activarChayanneCinematico() {
+            const audio = document.getElementById('audioChayanne');
+            audio.currentTime = 0;
+            audio.play().catch(e => {
+                console.log("Reproducción bloqueada por política del navegador, requiere interacción:", e);
+            });
+            document.getElementById('chayanneOverlay').classList.add('activo');
+        }
+
+        function cerrarChayanneCinematico() {
+            const audio = document.getElementById('audioChayanne');
+            audio.pause();
+            audio.currentTime = 0;
+            document.getElementById('chayanneOverlay').classList.remove('activo');
+        }
+
+        function clickSlot(index) {
+            if (buildActual[index] === "Chayanne") {
+                slotSeleccionadoParaCambiar = index;
+                abrirModalSelector();
+            }
+        }
+
+        function abrirModalSelector() {
+            const modal = document.getElementById('modalSelector');
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = '';
+
+            const baseDatos = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
+            for (let perk in baseDatos) {
+                if (perk === "Chayanne") continue;
+                const url = baseDatos[perk];
+
+                const opt = document.createElement('div');
+                opt.className = 'perk-option';
+                opt.innerHTML = `<img src="${url}" alt="${perk}"><span>${perk}</span>`;
+                opt.onclick = () => seleccionarHabilidadSlot(perk);
+                modalBody.appendChild(opt);
+            }
+            modal.style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalSelector').style.display = 'none';
+        }
+
+        function seleccionarHabilidadSlot(perkElegida) {
+            if (slotSeleccionadoParaCambiar !== null) {
+                buildActual[slotSeleccionadoParaCambiar] = perkElegida;
+                actualizarUIBuild();
+                slotSeleccionadoParaCambiar = null;
+            }
+            cerrarModal();
         }
 
         function iniciarGiro() {
@@ -666,8 +932,11 @@
                 alert("¡Ya tienes la build completa (4/4)! Limpia la build para empezar de nuevo.");
                 return;
             }
+
+            actualizarListaRuleta();
+
             if (listaActual.length === 0) {
-                alert("Primero debes agregar al menos una habilidad.");
+                alert("No quedan más habilidades disponibles.");
                 return;
             }
 
@@ -720,16 +989,17 @@
                     const baseDatosActiva = (rolActual === 'superviviente') ? basePerksSuperviviente : basePerksAsesino;
                     const urlImagen = baseDatosActiva[perkGanadora];
 
-                    reproducirSonidoGanador();
-
-                    // Agregar al slot de la build
                     if (buildActual.length < 4) {
                         buildActual.push(perkGanadora);
                         actualizarUIBuild();
                     }
 
+                    actualizarListaRuleta();
+                    dibujarRuletaEstatica();
+
                     document.getElementById('resultado').innerHTML = `¡Ganador:<br><span style="color:#ffffff; font-size:1.4rem; text-shadow: 0 0 10px #d91e18;">${perkGanadora}</span>!`;
 
+                    reproducirSonidoGanador();
                     const centroGanador = document.getElementById('centroGanador');
                     document.getElementById('nombreGanadorCentro').innerText = perkGanadora;
                     
@@ -737,6 +1007,12 @@
                     imgElement.src = urlImagen;
                     
                     centroGanador.classList.add('mostrar');
+
+                    if (perkGanadora === "Chayanne") {
+                        setTimeout(() => {
+                            activarChayanneCinematico();
+                        }, 500);
+                    }
                 }
             }
 
@@ -744,8 +1020,8 @@
         }
 
         precargarImagenes();
-        const totalInit = listaActual.length;
-        anguloActualGrados = totalInit > 0 ? - 90 - (360 / totalInit) / 2 : 0;
+        actualizarListaRuleta();
+        anguloActualGrados = listaActual.length > 0 ? -90 - (360 / listaActual.length) / 2 : 0;
         dibujarRuletaEstatica();
         canvas.style.transform = `translateZ(0) rotate(${anguloActualGrados}deg)`;
     </script>
